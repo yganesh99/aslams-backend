@@ -9,8 +9,6 @@ const router = express.Router();
 const itemSchema = Joi.object({
 	productId: Joi.string().hex().length(24).required(),
 	quantity: Joi.number().min(0.001).required(),
-	/** Optional: ecommerce checkout lines for FIFO COGS on confirm. */
-	lineIndex: Joi.number().integer().min(0).optional(),
 });
 
 router.get(
@@ -35,7 +33,6 @@ router.post(
 			productId: Joi.string().hex().length(24).required(),
 			storeId: Joi.string().hex().length(24).required(),
 			quantityChange: Joi.number().required(),
-			/** Required when quantityChange > 0 (FIFO cost layer). */
 			unitCost: Joi.number().min(0).optional(),
 			adjustmentNote: Joi.string().trim().max(500).allow('').optional(),
 		}),
@@ -75,31 +72,6 @@ router.post(
 		}),
 	}),
 	controller.transfer,
-);
-
-router.post(
-	'/lock',
-	auth(),
-	celebrate({
-		[Segments.BODY]: Joi.object({
-			storeId: Joi.string().hex().length(24).required(),
-			items: Joi.array().items(itemSchema).min(1).required(),
-			sessionId: Joi.string().required(),
-			ttlMinutes: Joi.number().integer().min(1).optional(),
-		}),
-	}),
-	controller.lock,
-);
-
-router.post(
-	'/release',
-	auth(),
-	celebrate({
-		[Segments.BODY]: Joi.object({
-			sessionId: Joi.string().required(),
-		}),
-	}),
-	controller.release,
 );
 
 export default router;

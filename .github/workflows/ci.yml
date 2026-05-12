@@ -42,11 +42,11 @@ jobs:
                       apt-get update && apt-get install -y unzip
 
                       echo "Unzipping release..."
-                      rm -rf release-backend
-                      mkdir release-backend
-                      unzip -o aslams.zip -d release-backend
+                      rm -rf release-aslams-backend
+                      mkdir release-aslams-backend
+                      unzip -o aslams.zip -d release-aslams-backend
 
-                      cd release-backend
+                      cd release-aslams-backend
 
                       echo "Starting containers..."
                       docker compose down

@@ -1,8 +1,8 @@
 services:
-    app:
+    aslams-app:
         build: .
         ports:
-            - '4000:4000'
+            - '4001:4000'
         env_file:
             - /opt/aslams-backend/.env
         environment:
@@ -27,8 +27,8 @@ services:
             start_period: 40s
         container_name: aslams-backend
         networks:
-            - app-network
+            - aslams-app-network
 
 networks:
-    app-network:
+    aslams-app-network:
         external: true

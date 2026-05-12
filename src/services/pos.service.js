@@ -185,12 +185,6 @@ async function createOrder(
 						{ status: 404 },
 					);
 				}
-				if (product.visibility === 'ecommerce_only') {
-					throw Object.assign(
-						new Error(`Product ${product.sku} is ecommerce-only`),
-						{ status: 400 },
-					);
-				}
 				if (!product.isActive) {
 					throw Object.assign(
 						new Error(`Product ${product.sku} is inactive`),
@@ -243,7 +237,7 @@ async function createOrder(
 
 			// Counter is updated outside this multi-document transaction to avoid WriteConflict
 			// on OrderSequence; aborted sales may leave a gap in the numeric sequence.
-			const orderNumber = await nextOrderNumber('pos');
+			const orderNumber = await nextOrderNumber();
 
 			const orderItems = [];
 			for (const line of pricingLines) {

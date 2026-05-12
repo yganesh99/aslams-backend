@@ -61,31 +61,6 @@ export const getTransfers = async (req, res, next) => {
 	}
 };
 
-export const lock = async (req, res, next) => {
-	try {
-		const { storeId, items, sessionId, ttlMinutes } = req.body;
-		const locks = await inventoryService.lockStock(
-			storeId,
-			items,
-			sessionId,
-			ttlMinutes,
-		);
-		res.status(201).json(locks);
-	} catch (err) {
-		next(err);
-	}
-};
-
-export const release = async (req, res, next) => {
-	try {
-		const { sessionId } = req.body;
-		const result = await inventoryService.releaseStock(sessionId);
-		res.json({ released: result.length });
-	} catch (err) {
-		next(err);
-	}
-};
-
 export const receive = async (req, res, next) => {
 	try {
 		const result = await inventoryService.receiveStock(
