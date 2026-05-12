@@ -1,0 +1,35 @@
+curl -X POST "http://localhost:4000/api/users" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OWE0OTZhOGZhN2ZmOTlhZDhlNTM1NzYiLCJyb2xlIjoiYWRtaW4iLCJzdG9yZUlkIjpudWxsLCJpYXQiOjE3NzI0NDc1NDMsImV4cCI6MTc3MjQ0ODQ0M30.qolUzpCtCTVRwi23txqYgGAXOkrMcWdfngkS7KfSpYk" \
+  -d '{
+    "email": "yganesh969@gmail.com",
+    "password": "Test@123",
+    "name": "John Doe",
+    "phone": "+94 77 123 4567",
+    "role": "admin"
+  }'
+
+  curl -X POST "http://localhost:4000/api/stores" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OWE1ODZjY2JjOTU0ODdlY2MyM2MwNmIiLCJyb2xlIjoiYWRtaW4iLCJzdG9yZUlkIjpudWxsLCJpYXQiOjE3NzI0NTU2NDIsImV4cCI6MTc3MjQ1NjU0Mn0.ESyDpiKO_nKuHpd6gFCGc1YP34iXOsUyR_NNS616Qr4" \
+  -d '{
+    "name": "Main Warehouse",             
+    "code": "WH-001",               
+    "address": {       
+      "street": "123 High Street",
+      "city": "Colombo",
+      "state": "Western Province",
+      "zip": "00100",
+      "country": "Sri Lanka"
+    },
+    "phone": "+94 77 123 4567"
+  }'
+
+
+  curl -X POST "http://localhost:4000/api/registers" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OWE1ODZjY2JjOTU0ODdlY2MyM2MwNmIiLCJyb2xlIjoiYWRtaW4iLCJzdG9yZUlkIjpudWxsLCJpYXQiOjE3NzI0NTU2NDIsImV4cCI6MTc3MjQ1NjU0Mn0.ESyDpiKO_nKuHpd6gFCGc1YP34iXOsUyR_NNS616Qr4" \
+  -d '{
+    "storeId": "69a56c026a9ddaad9921a051",
+    "name": "Front Counter Register"
+  }'                   

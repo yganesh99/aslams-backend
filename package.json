@@ -1,0 +1,58 @@
+{
+	"name": "express-boilerplate-backend",
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"main": "src/app.js",
+	"scripts": {
+		"test": "cross-env NODE_ENV=test jest --runInBand --forceExit",
+		"test:watch": "cross-env NODE_ENV=test jest --watchAll --runInBand",
+		"start": "node src/server.js",
+		"dev": "nodemon src/server.js",
+		"seed": "node scripts/seed.js",
+		"seed:users": "node scripts/seed-users.js",
+		"seed:cost-layers": "node scripts/seed-inventory-cost-layers.js"
+	},
+	"repository": {
+		"type": "git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {},
+	"homepage": "",
+	"dependencies": {
+		"@opentelemetry/api": "^1.9.1",
+		"better-auth": "^1.6.2",
+		"celebrate": "^12.1.2",
+		"cors": "^2.8.5",
+		"dotenv": "^16.x",
+		"express": "^4.18.2",
+		"express-rate-limit": "^6.x",
+		"helmet": "^7.x",
+		"mongodb": "^7.1.1",
+		"mongoose": "^7.x",
+		"morgan": "^1.10.0",
+		"multer": "^2.0.2",
+		"pdfkit": "^0.17.2"
+	},
+	"devDependencies": {
+		"cross-env": "^10.1.0",
+		"jest": "^29.x",
+		"mongodb-memory-server": "^9.x",
+		"nodemon": "^3.1.10",
+		"supertest": "^6.x"
+	},
+	"jest": {
+		"testEnvironment": "node",
+		"testMatch": [
+			"**/tests/api/**/*.test.js"
+		],
+		"globalSetup": "./tests/setup/globalSetup.js",
+		"globalTeardown": "./tests/setup/globalTeardown.js",
+		"testTimeout": 30000,
+		"clearMocks": true,
+		"verbose": true,
+		"transform": {}
+	}
+}

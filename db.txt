@@ -1,0 +1,48 @@
+1. Create KeyFile For MongoDB
+    
+    ```tsx
+    mkdir -p /opt/mongodb-setup
+    cd /opt/mongodb-setup
+    openssl rand -base64 756 > mongo-keyfile
+    chown 999:999 /opt/mongodb-setup/mongo-keyfile
+    chmod 400 /opt/mongodb-setup/mongo-keyfile
+    ```
+    
+2. Create the mongodb volume to persist data
+    
+    ```tsx
+    docker volume create mongo_data
+    ```
+    
+3. Create the mongodb container
+    
+    ```tsx
+    docker run -d \
+      --name mongodb \
+      -p 127.0.0.1:27017:27017 \
+      -v mongo_data:/data/db \
+      -v "/opt/mongodb-setup/mongo-keyfile:/etc/mongo-keyfile:ro" \
+      -e MONGO_INITDB_ROOT_USERNAME=admin \
+      -e MONGO_INITDB_ROOT_PASSWORD='c4cf345e33f31676406e6142cde52e58' \
+      mongo:7 \
+      mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongo-keyfile
+    ```
+    
+4. Access the mongosh terminal and initiate replica set
+    
+    ```tsx
+      docker exec -it mongodb mongosh -u admin -p 'c4cf345e33f31676406e6142cde52e58' --authenticationDatabase admin
+      
+      rs.initiate({
+    	  _id: "rs0",
+    	  members: [{ _id: 0, host: "127.0.0.1:27017" }]
+    	})
+    ```
+    
+
+5.  Create a network for apps to connect
+
+```sass
+docker network create app-network
+docker network connect app-network mongodb
+```

@@ -1,0 +1,53 @@
+name: Deploy
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Create deployment package
+              run: |
+                  zip -r aslams.zip . -x ".git/*" "node_modules/*"
+
+            - name: Copy zip to server
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USERNAME }}
+                  password: ${{ secrets.SSH_PASSWORD }}
+                  port: ${{ secrets.SSH_PORT }}
+                  source: 'aslams.zip'
+                  target: '/opt/aslams-backend'
+
+            - name: Deploy via SSH
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USERNAME }}
+                  password: ${{ secrets.SSH_PASSWORD }}
+                  port: ${{ secrets.SSH_PORT }}
+                  script: |
+                      set -e
+
+                      cd /opt/aslams-backend
+
+                      echo "Installing unzip..."
+                      apt-get update && apt-get install -y unzip
+
+                      echo "Unzipping release..."
+                      rm -rf release-backend
+                      mkdir release-backend
+                      unzip -o aslams.zip -d release-backend
+
+                      cd release-backend
+
+                      echo "Starting containers..."
+                      docker compose down
+                      docker compose up -d --build
