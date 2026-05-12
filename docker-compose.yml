@@ -27,8 +27,8 @@ services:
             start_period: 40s
         container_name: aslams-backend
         networks:
-            - aslams-app-network
+            - app-network
 
 networks:
-    aslams-app-network:
+    app-network:
         external: true
