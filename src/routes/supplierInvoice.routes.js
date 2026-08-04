@@ -31,6 +31,9 @@ router.post(
 				.min(1)
 				.required(),
 			totalAmount: Joi.number().min(0).required(),
+			paymentTerms: Joi.string()
+				.valid('DUE_ON_RECEIPT', 'NET_15', 'NET_30', 'NET_60')
+				.optional(),
 		}),
 	}),
 	controller.create,

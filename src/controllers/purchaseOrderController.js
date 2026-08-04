@@ -1,5 +1,6 @@
 import * as poService from '../services/purchaseOrder.service.js';
 import { logAudit } from '../middlewares/auditLog.js';
+import { generatePurchaseOrder } from '../utils/pdfGenerator.js';
 
 
 export const create = async (req, res, next) => {
@@ -87,6 +88,23 @@ export const remove = async (req, res, next) => {
 			changes: { deletedAt: po.deletedAt, poNumber: po.poNumber },
 		});
 		res.status(204).send();
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const generatePdf = async (req, res, next) => {
+	try {
+		const po = await poService.getById(req.params.id);
+		if (!po) return res.status(404).json({ message: 'Purchase Order not found' });
+
+		res.setHeader('Content-Type', 'application/pdf');
+		res.setHeader(
+			'Content-Disposition',
+			`inline; filename="PO-${po.poNumber}.pdf"`,
+		);
+
+		generatePurchaseOrder(po, res);
 	} catch (err) {
 		next(err);
 	}

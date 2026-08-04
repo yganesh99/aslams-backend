@@ -424,4 +424,251 @@ function generateTableRow(doc, y, description, quantity, rate, total) {
 	doc.text(total, 450, y, { width: 90, align: 'right' });
 }
 
-export { generateInvoice };
+function generatePOHeader(doc, po) {
+	let y = 40;
+
+	// Brand Title
+	doc.font('Helvetica-Bold')
+		.fontSize(22)
+		.fillColor('#000000')
+		.text('Aslams', 40, y);
+
+	y += 28;
+
+	// Brand Address
+	doc.font('Helvetica').fontSize(9);
+	doc.text('No 10, Hill Street, Dehiwala', 40, y);
+	y += 12;
+	doc.text('+94 112 123 456  |  aslams@gmail.com', 40, y);
+	y += 8;
+
+	// PO Number (right aligned)
+	doc.font('Helvetica-Bold')
+		.fontSize(14)
+		.fillColor('#808080')
+		.text('Purchase Order: ', 320, 40, {
+			continued: true,
+		})
+		.fillColor('#000000')
+		.text(po.poNumber);
+
+	return y;
+}
+
+function generateSupplierInformation(
+	doc,
+	po,
+	formatDateTime,
+	createdByName,
+	startY,
+) {
+	const supplier = po.supplierId || {};
+	const issued = po.createdAt
+		? formatDateTime(po.createdAt)
+		: formatDateTime(Date.now());
+
+	let y = startY + 12;
+
+	// Horizontal separator
+	doc.moveTo(40, y)
+		.lineTo(555, y)
+		.strokeColor('#DDDDDD')
+		.lineWidth(0.5)
+		.stroke();
+	y += 10;
+
+	// Left column: date & time
+	doc.font('Helvetica-Bold')
+		.fontSize(9)
+		.fillColor('#808080')
+		.text('Date & time:', 40, y);
+	doc.font('Helvetica')
+		.fontSize(9)
+		.fillColor('#000000')
+		.text(issued, 105, y, { width: 220 });
+
+	// Right column: Supplier
+	doc.font('Helvetica-Bold')
+		.fontSize(9)
+		.fillColor('#808080')
+		.text('Supplier:', 350, y);
+	doc.font('Helvetica')
+		.fontSize(9)
+		.fillColor('#000000')
+		.text(supplier.name || 'Unknown Supplier', 405, y);
+
+	y += 14;
+
+	// Created by
+	doc.font('Helvetica-Bold')
+		.fontSize(9)
+		.fillColor('#808080')
+		.text('Created by:', 40, y);
+	doc.font('Helvetica')
+		.fontSize(9)
+		.fillColor('#000000')
+		.text(createdByName, 105, y);
+
+	if (supplier.phone) {
+		doc.font('Helvetica').fontSize(9).text(supplier.phone, 405, y);
+	}
+
+	y += 14;
+
+	// Status
+	const statusLabel = (po.status || 'draft').replace('_', ' ').toUpperCase();
+	doc.font('Helvetica-Bold')
+		.fontSize(9)
+		.fillColor('#808080')
+		.text('Status:', 40, y);
+	doc.font('Helvetica')
+		.fontSize(9)
+		.fillColor('#000000')
+		.text(statusLabel, 105, y);
+
+	if (supplier.email) {
+		doc.font('Helvetica').fontSize(9).text(supplier.email, 405, y);
+		y += 12;
+	}
+
+	return y;
+}
+
+function generatePOTable(doc, po, formatCurrency, startY) {
+	let y = startY + 8;
+
+	// Table Header Background
+	doc.rect(40, y, 515, 22).fill('#EEEEEE');
+
+	// Table Header Text
+	doc.font('Helvetica-Bold').fontSize(9).fillColor('#000000');
+	generateTableRow(doc, y + 6, 'Description', 'Qty', 'Unit Cost', 'Total');
+
+	y += 30;
+	doc.font('Helvetica').fontSize(9);
+
+	const formatQty = (qty) =>
+		Number.isInteger(Number(qty)) ? String(qty) : Number(qty).toFixed(2);
+
+	// Table Items
+	for (let i = 0; i < po.items.length; i++) {
+		const item = po.items[i];
+		const lineTotal = item.unitPrice * item.orderedQty;
+
+		const descHeight = doc.heightOfString(`${item.name} - ${item.sku}`, {
+			width: 200,
+		});
+		const rowHeight = Math.max(descHeight, 14);
+
+		generateTableRow(
+			doc,
+			y,
+			`${item.name}\n${item.sku}`,
+			formatQty(item.orderedQty),
+			formatCurrency(item.unitPrice),
+			formatCurrency(lineTotal),
+		);
+
+		// Dotted separator
+		doc.lineWidth(0.5)
+			.dash(2, { space: 2 })
+			.moveTo(40, y + rowHeight + 4)
+			.lineTo(555, y + rowHeight + 4)
+			.strokeColor('#CCCCCC')
+			.stroke()
+			.undash();
+
+		y += rowHeight + 10;
+
+		// Page break for very long orders
+		if (y > 700) {
+			doc.addPage();
+			y = 40;
+		}
+	}
+
+	// Summary Section
+	const summaryY = y + 12;
+	let nextY = summaryY;
+
+	// Separator before total
+	doc.moveTo(350, nextY)
+		.lineTo(555, nextY)
+		.strokeColor('#000000')
+		.lineWidth(0.5)
+		.stroke();
+
+	doc.font('Helvetica-Bold').fontSize(12);
+	doc.text('Total', 350, nextY + 6);
+	doc.text(formatCurrency(po.totalAmount || 0), 430, nextY + 6, {
+		width: 110,
+		align: 'right',
+	});
+
+	let contentEndY = nextY + 26;
+
+	if (po.notes) {
+		contentEndY = advanceY(doc, contentEndY, 14);
+		doc.font('Helvetica-Bold').fontSize(9).fillColor('#808080');
+		doc.text('Notes:', 40, contentEndY);
+		doc.font('Helvetica').fontSize(9).fillColor('#000000');
+		contentEndY += 12;
+		doc.text(po.notes, 40, contentEndY, { width: 515 });
+		contentEndY += doc.heightOfString(po.notes, { width: 515 }) + 10;
+	}
+
+	return contentEndY;
+}
+
+function generatePOFooter(doc, contentEndY) {
+	// Place footer dynamically after content, but ensure it's near bottom
+	const footerY = Math.max(contentEndY + 30, 720);
+
+	doc.font('Helvetica').fontSize(8).fillColor('#808080');
+	doc.text(
+		'This is a computer-generated purchase order and does not require a signature.',
+		40,
+		footerY,
+		{ width: 515, align: 'center' },
+	);
+}
+
+function generatePurchaseOrder(po, res) {
+	const doc = new PDFDocument({ size: 'A4', margin: 40 });
+	doc.pipe(res);
+
+	const formatCurrency = (amount) => `Rs ${amount.toFixed(2)}`;
+	const formatDateTime = (dateInput) => {
+		const date = new Date(dateInput);
+		if (Number.isNaN(date.getTime())) return '—';
+		return date.toLocaleString('en-GB', {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	};
+
+	const createdByName = (() => {
+		const cb = po.createdBy;
+		if (!cb) return '—';
+		if (typeof cb === 'object' && cb.name) return cb.name;
+		return '—';
+	})();
+
+	let y = generatePOHeader(doc, po);
+	y = generateSupplierInformation(
+		doc,
+		po,
+		formatDateTime,
+		createdByName,
+		y,
+	);
+	y = generatePOTable(doc, po, formatCurrency, y);
+	generatePOFooter(doc, y);
+
+	doc.end();
+}
+
+export { generateInvoice, generatePurchaseOrder };

@@ -32,6 +32,11 @@ const supplierInvoiceSchema = new mongoose.Schema(
 		invoiceNumber: { type: String, required: true },
 		items: { type: [invoiceItemSchema], required: true },
 		totalAmount: { type: Number, required: true, min: 0 },
+		paymentTerms: {
+			type: String,
+			enum: ['DUE_ON_RECEIPT', 'NET_15', 'NET_30', 'NET_60'],
+			default: 'DUE_ON_RECEIPT',
+		},
 		paidAmount: { type: Number, default: 0, min: 0 },
 		status: {
 			type: String,

@@ -33,6 +33,7 @@ router.post(
 
 router.get('/', controller.getAll);
 router.get('/:id', controller.getById);
+router.get('/:id/pdf', controller.generatePdf);
 router.patch('/:id/approve', controller.approve);
 router.patch('/:id/send', controller.markSent);
 
