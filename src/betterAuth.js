@@ -24,6 +24,16 @@ export function getBetterAuth() {
 		database: mongodbAdapter(_db, { client }),
 		trustedOrigins,
 		plugins: [admin({ defaultRole: 'cashier' })],
+		advanced: {
+			crossSubDomainCookies: {
+				enabled: true,
+				domain:
+					process.env.COOKIE_DOMAIN ||
+					(process.env.NODE_ENV === 'production'
+						? '.thefabrichub.lk'
+						: undefined),
+			},
+		},
 	});
 
 	return _auth;
