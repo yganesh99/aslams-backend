@@ -30,7 +30,7 @@ export function getBetterAuth() {
 				domain:
 					process.env.COOKIE_DOMAIN ||
 					(process.env.NODE_ENV === 'production'
-						? '.thefabrichub.lk'
+						? '.vercel.app'
 						: undefined),
 			},
 		},
